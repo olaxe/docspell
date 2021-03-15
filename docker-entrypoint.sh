@@ -1,6 +1,6 @@
 #!/bin/bash
 echo 'Container Docspell is starting'
-echo ''
+echo ' '
 
 echo 'Initialize config files:'
 if [ ! -f "/config/docspell-server.conf" ]; then
