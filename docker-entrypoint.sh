@@ -1,5 +1,5 @@
 #!/bin/bash
-echo 'Container Docspell is starting'
+echo 'Container Docspell is starting...'
 echo ''
 
 echo 'Initialize config files:'
