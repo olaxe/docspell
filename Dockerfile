@@ -21,6 +21,8 @@ RUN mkdir -p /opt/docspell && mkdir -p /opt/docspell/joex && mkdir -p /opt/docsp
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver
 
+VOLUME /config
+
 WORKDIR /opt/docspell
 
 COPY docker-entrypoint.sh /entrypoint.sh
