@@ -10,5 +10,5 @@ echo 'Starting all needed components:'
 /opt/docspell/restserver/bin/docspell-restserver
 echo ''
 
-echo 'infinite waiting so the container can be used at any time to launch YouTube-dl operations'
+echo 'infinite waiting'
 while true; do sleep 100; done
