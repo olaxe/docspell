@@ -2,7 +2,7 @@ name: "Build Images"
 
 on:
   push:
-    branches: [master,main]
+    branches: main
   schedule:
     - cron: '0 0 * * *'
 
