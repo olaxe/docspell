@@ -1,6 +1,6 @@
 #!/bin/bash
 echo 'Container Docspell is starting'
-echo ' '
+echo ''
 
 echo 'Initialize config files:'
 if [ ! -f "/config/docspell-server.conf" ]; then
@@ -28,7 +28,7 @@ echo 'Starting all needed components:'
 /opt/solr/bin/solr status
 /opt/docspell/joex/bin/docspell-joex
 /opt/docspell/restserver/bin/docspell-restserver
-echo ' '
+echo ''
 
 echo 'infinite waiting'
 while true; do sleep 100; done
