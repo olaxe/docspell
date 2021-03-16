@@ -10,14 +10,12 @@ RUN apt-get update \
     
 WORKDIR /opt
 
-RUN mkdir -p /opt/solr
-
-RUN wget https://apache.mediamirrors.org/lucene/solr/8.8.1/solr-8.8.1.tgz -P /opt/solr/ \
-    && tar zxf /opt/solr/solr-8.8.1.tgz --strip 1 -C /opt/solr
+RUN mkdir -p /opt/solr && wget -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/8.8.1/solr-8.8.1.tgz \
+    && tar zxf /opt/solr/solr.tgz --strip 1 -C /opt/solr
     
-RUN mkdir -p /opt/docspell && mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
-    && wget -O docspell-restserver.zip https://github.com/eikek/docspell/releases/download/v0.21.0/docspell-restserver-0.21.0.zip -P /opt/docspell/ \
-    && wget -O docspell-joex.zip https://github.com/eikek/docspell/releases/download/v0.21.0/docspell-joex-0.21.0.zip -P /opt/docspell/ \
+RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
+    && wget -O /opt/docspell/docspell-restserver.zip https://github.com/eikek/docspell/releases/download/v0.21.0/docspell-restserver-0.21.0.zip \
+    && wget -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v0.21.0/docspell-joex-0.21.0.zip \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver
 
