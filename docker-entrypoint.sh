@@ -32,8 +32,8 @@ if [ $? -ne 0 ]; then
   echo ' - Create the solr core docspell'
   /opt/solr/bin/solr create -c docspell -force
 fi
-/opt/docspell/joex/bin/docspell-joex
-/opt/docspell/restserver/bin/docspell-restserver
+/opt/docspell/joex/bin/docspell-joex &
+/opt/docspell/restserver/bin/docspell-restserver &
 echo ''
 
 echo 'infinite waiting'
