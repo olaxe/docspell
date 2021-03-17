@@ -13,7 +13,7 @@ WORKDIR /opt
 RUN mkdir -p /opt/solr && wget -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/8.8.1/solr-8.8.1.tgz \
     && tar zxf /opt/solr/solr.tgz --strip 1 -C /opt/solr && rm /opt/solr/solr.tgz
     
-VOLUME /opt/solr/server/solr
+VOLUME /var/solr/data
     
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && wget -O /opt/docspell/docspell-restserver.zip https://github.com/eikek/docspell/releases/download/v0.21.0/docspell-restserver-0.21.0.zip \
