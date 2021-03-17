@@ -21,10 +21,19 @@ if [ -f "/config/docspell-joex.conf" ]; then
   rm /opt/docspell/joex/conf/docspell-joex.conf
   ln -s /config/docspell-joex.conf /opt/docspell/joex/conf
 fi
- 
+
+echo 'Check the solr data folder'
+if [ -z "$(ls -A /var/solr/data)" ]; then
+  echo 'copy empty solr data structure'
+  mv /opt/solr/server/solr /var/solr/data
+fi
+echo 'Link the solr data volume'
+rm -rf /opt/solr/server/solr
+ln -s /var/solr/data /opt/solr/server/solr
+
 echo 'Starting all needed components:'
 echo ' - Starting solr full text indexer'
-/opt/solr/bin/solr start -force
+/opt/solr/bin/solr start -force 
 /opt/solr/bin/solr status
 echo ' - Ping the solr core docspell'
 wget -qO- http://localhost:8983/solr/docspell/admin/ping
