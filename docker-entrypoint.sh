@@ -2,7 +2,7 @@
 echo 'Container Docspell is starting...'
 echo ''
 
-echo 'Initialize config files:'
+echo 'Initialize Docspell config files:'
 if [ ! -f "/config/docspell-server.conf" ]; then
   echo 'docspell-server.conf NOT FOUND. Initialization started.'
   mv /opt/docspell/restserver/conf/docspell-server.conf /config
@@ -23,9 +23,15 @@ if [ -f "/config/docspell-joex.conf" ]; then
 fi
  
 echo 'Starting all needed components:'
+echo ' - Starting solr full text indexer'
 /opt/solr/bin/solr start -force
-/opt/solr/bin/solr create -c docspell -force
 /opt/solr/bin/solr status
+echo ' - Ping the solr core docspell'
+wget -qO- http://localhost:8983/solr/docspell/admin/ping
+if [ $? -ne 0 ]; then
+  echo ' - Create the solr core docspell'
+  /opt/solr/bin/solr create -c docspell -force
+fi
 /opt/docspell/joex/bin/docspell-joex
 /opt/docspell/restserver/bin/docspell-restserver
 echo ''
