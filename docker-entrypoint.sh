@@ -25,7 +25,7 @@ fi
 echo 'Check the solr data folder'
 if [ -z "$(ls -A /var/solr/data)" ]; then
   echo 'copy empty solr data structure'
-  mv /opt/solr/server/solr/ /var/solr/data/
+  mv /opt/solr/server/solr/* /var/solr/data/
 fi
 echo 'Link the solr data volume'
 rm -rf /opt/solr/server/solr
