@@ -40,6 +40,8 @@ wget -qO- http://localhost:8983/solr/docspell/admin/ping
 if [ $? -ne 0 ]; then
   echo ' - Create the solr core docspell'
   /opt/solr/bin/solr create -c docspell -force
+  echo 'configure it'
+  /opt/solr/bin/solr config -c docspell -p 8983 -action set-user-property -property update.autoCreateFields -value false
 fi
 /opt/docspell/joex/bin/docspell-joex &
 /opt/docspell/restserver/bin/docspell-restserver &
