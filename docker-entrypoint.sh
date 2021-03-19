@@ -26,6 +26,7 @@ echo 'Check the solr data folder'
 if [ -z "$(ls -A /var/solr/data)" ]; then
   echo 'copy empty solr data structure'
   mv /opt/solr/server/solr/* /var/solr/data/
+  chown solr --recursive /var/solr/data
 fi
 echo 'Link the solr data volume'
 rm -rf /opt/solr/server/solr
@@ -33,19 +34,19 @@ ln -s /var/solr/data /opt/solr/server/solr
 
 echo 'Starting all needed components:'
 echo ' - Starting solr full text indexer'
-/opt/solr/bin/solr start -force 
-/opt/solr/bin/solr status
+gosu solr:solr /opt/solr/bin/solr start
+gosu solr:solr /opt/solr/bin/solr status
 echo ' - Ping the solr core docspell'
-wget -qO- http://localhost:8983/solr/docspell/admin/ping
+gosu solr:solr wget -qO- http://localhost:8983/solr/docspell/admin/ping
 if [ $? -ne 0 ]; then
   echo ' - Create the solr core docspell'
-  /opt/solr/bin/solr create -c docspell -force
+  gosu solr:solr /opt/solr/bin/solr create -c docspell
   echo 'configure it'
-  /opt/solr/bin/solr config -c docspell -p 8983 -action set-user-property -property update.autoCreateFields -value false
+  gosu solr:solr /opt/solr/bin/solr config -c docspell -p 8983 -action set-user-property -property update.autoCreateFields -value false
 fi
 /opt/docspell/joex/bin/docspell-joex &
 /opt/docspell/restserver/bin/docspell-restserver &
 echo ''
 
-echo 'infinite waiting'
+echo 'Docspell instances (Joex & Restserver) have been started'
 while true; do sleep 100; done
