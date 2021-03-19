@@ -5,7 +5,15 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV BUILD_DEPS="gosu wget procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     DEBUG=false \
     SOLR_VERSION="8.8.1" \
-    DOCSPELL_VERSION="0.21.0"
+    DOCSPELL_VERSION="0.21.0" \
+    TZ=Etc/UTC \
+    DOCSPELL_HEADER_VALUE=none \
+    DB_TYPE="mysql" \
+    DB_HOST="mysql" \
+    DB_PORT="3306" \
+    DB_NAME="docspell" \
+    DB_USER="docspell" \
+    DB_PASS="docspell"
 
 RUN apt-get update \
     && apt-get -y install --no-install-recommends ${BUILD_DEPS} \
