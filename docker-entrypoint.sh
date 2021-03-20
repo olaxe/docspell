@@ -2,24 +2,17 @@
 echo 'Container Docspell is starting...'
 echo ''
 
-echo 'Initialize Docspell config files:'
-if [ ! -f "/config/docspell-server.conf" ]; then
-  echo 'docspell-server.conf NOT FOUND. Initialization started.'
-  mv /opt/docspell/restserver/conf/docspell-server.conf /config
-fi
+echo 'Check if there is an external Docspell Restserver config file'
 if [ -f "/config/docspell-server.conf" ]; then
-  echo 'docspell-server.conf FOUND.'
-  rm /opt/docspell/restserver/conf/docspell-server.conf
-  ln -s /config/docspell-server.conf /opt/docspell/restserver/conf
+  echo '/config/docspell-server.conf FOUND. Replacement started.'
+  mv /opt/docspell/restserver/conf/docspell-server.conf /opt/docspell/restserver/conf/docspell-server.conf.bak
+  mv /config/docspell-server.conf /opt/docspell/restserver/conf/docspell-server.conf
 fi
-if [ ! -f "/config/docspell-joex.conf" ]; then
-  echo 'docspell-joex.conf NOT FOUND. Initialization started.'
-  mv /opt/docspell/joex/conf/docspell-joex.conf /config
-fi
+echo 'Check if there is a external Docspell Joex config file'
 if [ -f "/config/docspell-joex.conf" ]; then
-  echo 'docspell-joex.conf FOUND.'
-  rm /opt/docspell/joex/conf/docspell-joex.conf
-  ln -s /config/docspell-joex.conf /opt/docspell/joex/conf
+  echo 'docspell-joex.conf FOUND. Replacement started.'
+  mv /opt/docspell/joex/conf/docspell-joex.conf /opt/docspell/joex/conf/docspell-joex.conf.bak
+  mv /config/docspell-joex.conf /opt/docspell/joex/conf/docspell-joex.conf
 fi
 
 echo 'Check the solr data folder'
