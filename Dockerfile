@@ -5,7 +5,13 @@ ARG DEBIAN_FRONTEND=noninteractive \
     SOLR_VERSION="8.8.1" \
     DOCSPELL_VERSION="0.21.0" \
     DOCSPELL_CONF_RS="/opt/docspell/restserver/conf/docspell-server.conf" \
-    DOCSPELL_CONF_JOEX="/opt/docspell/joex/conf/docspell-joex.conf"
+    DOCSPELL_CONF_JOEX="/opt/docspell/joex/conf/docspell-joex.conf" \
+    TMP_BIND="/tmp/__bind" \
+    TMP_AUTH="/tmp/__auth" \
+    TMP_INTEGRATION_ENDPOINT="/tmp/__integration_endpoint" \
+    TMP_ADMIN_ENDPOINT="/tmp/__admin_endpoint" \
+    TMP_FULL_TEXT_SEARCH="/tmp/__full_text_search" \
+    TMP_BACKEND="/tmp/__backend"
 
 ENV DEBUG=false \
     TZ=Etc/UTC \
@@ -81,20 +87,26 @@ SHELL ["/bin/bash", "-c"]
 
 RUN sed -i -e '/  app-name/ s/=.*/= $\{DOCSPELL_RS_APP_NAME\}/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  app-id/ s/=.*/= $\{DOCSPELL_RS_APP_ID\}/' "${DOCSPELL_CONF_RS}" \
-    && sed -i -e '/  base-url/ s/=.*/= $\{DOCSPELL_RS_BASE_URL\}/' "${DOCSPELL_CONF_RS}"
+    && sed -i -e '/  base-url/ s/=.*/= $\{DOCSPELL_RS_BASE_URL\}/' "${DOCSPELL_CONF_RS}" \
+    && sed -i -e '/  max-item-page-size/ s/=.*/= $\{DOCSPELL_RS_MAX_ITEM_PAGE_SIZE\}/' "${DOCSPELL_CONF_RS}" \
+    && sed -i -e '/  max-note-length/ s/=.*/= $\{DOCSPELL_RS_MAX_NOTE_LENGTH\}/' "${DOCSPELL_CONF_RS}" \
+    && sed -i -e '/  show-classification-settings/ s/=.*/= $\{DOCSPELL_RS_SHOW_CLASSIFICATION_SETTINGS\}/' "${DOCSPELL_CONF_RS}"
 
-RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >/tmp/__bind
-RUN sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' /tmp/__bind
-RUN sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' /tmp/__bind
-RUN cat /tmp/__bind
-RUN rg --replace "$(cat /tmp/__bind)" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
-RUN rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
+RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BIND}" \
+    && sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' "${TMP_BIND}" \
+    && sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' "${TMP_BIND}" \
+    && cat "${TMP_BIND}" \
+    && rg --replace "$(cat ${TMP_BIND})" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
+    && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
     
-RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >/tmp/__full_text_search
-RUN sed -i -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' /tmp/__full_text_search
-RUN cat /tmp/__bind
-RUN rg --replace "$(cat /tmp/__full_text_search)" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
+RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_FULL_TEXT_SEARCH}"
+RUN sed -i -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' "${TMP_FULL_TEXT_SEARCH}"
+RUN cat "${TMP_FULL_TEXT_SEARCH}"
+RUN rg --replace "$(cat ${TMP_FULL_TEXT_SEARCH})" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
 RUN rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
+
+RUN sed -n -e '/  backend {/,/^}/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BACKEND}" \
+    && cat "${TMP_BACKEND}"
 
 VOLUME /config
 
