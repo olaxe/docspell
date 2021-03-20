@@ -62,7 +62,7 @@ RUN apt-get update \
     
 WORKDIR /opt
 
-RUN mkdir -p /opt/solr && wget -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz \
+RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz \
     && tar zxf /opt/solr/solr.tgz --strip 1 -C /opt/solr && rm /opt/solr/solr.tgz \
     && useradd --user-group --system --home-dir /opt/solr solr \
     && chown solr --recursive /opt/solr
@@ -70,8 +70,8 @@ RUN mkdir -p /opt/solr && wget -O /opt/solr/solr.tgz https://apache.mediamirrors
 VOLUME /var/solr/data
     
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
-    && wget -O /opt/docspell/docspell-restserver.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-restserver-${DOCSPELL_VERSION}.zip \
-    && wget -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-joex-${DOCSPELL_VERSION}.zip \
+    && wget -q -O /opt/docspell/docspell-restserver.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-restserver-${DOCSPELL_VERSION}.zip \
+    && wget -q -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-joex-${DOCSPELL_VERSION}.zip \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver \
     && cp "${DOCSPELL_CONF_RS}" "${DOCSPELL_CONF_RS}.origin" && cp "${DOCSPELL_CONF_JOEX}" "${DOCSPELL_CONF_JOEX}.origin" \
@@ -87,12 +87,14 @@ RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >/tmp/__bind
 RUN sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' /tmp/__bind
 RUN sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' /tmp/__bind
 RUN cat /tmp/__bind
-RUN rg --replace "$(cat /tmp/__bind)" --passthru --no-line-number --multiline --multiline-dotall '  bind.*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
+RUN rg --replace "$(cat /tmp/__bind)" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
 RUN rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
     
-RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" | sed -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search \
-    && rg --replace "$(cat /tmp/__full_text_search)" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search {.*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
-    && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
+RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >/tmp/__full_text_search
+RUN sed -i -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' /tmp/__full_text_search
+RUN cat /tmp/__bind
+RUN rg --replace "$(cat /tmp/__full_text_search)" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
+RUN rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
 
 VOLUME /config
 
