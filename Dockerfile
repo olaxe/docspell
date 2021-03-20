@@ -38,8 +38,9 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver \
     && rm /opt/docspell/docspell-joex.zip && rm /opt/docspell/docspell-restserver.zip
     
-RUN rg --replace "$(sed -n -e '/full-text-search/,/^  }/ p' /opt/docspell/restserver/conf/docspell-server.conf | sed -e '/enabled/ s/=.*/= $${DOCSPELL_FULL_TEXT_SEARCH_ENABLED}/')" \
-    --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' /opt/docspell/restserver/conf/docspell-server.conf > /opt/docspell/restserver/conf/docspell-server.conf
+RUN sed -n -e '/full-text-search/,/^  }/ p' /opt/docspell/restserver/conf/docspell-server.conf | sed -e '/enabled/ s/=.*/= \$$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search \
+    && rg --replace '`cat /tmp/__full_text_search`' --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' /opt/docspell/restserver/conf/docspell-server.conf \
+    > /opt/docspell/restserver/conf/docspell-server.conf
 
 VOLUME /config
 
