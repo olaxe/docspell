@@ -39,6 +39,8 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver \
     && rm /opt/docspell/docspell-joex.zip && rm /opt/docspell/docspell-restserver.zip
 
+RUN /usr/bin/rg -V
+
 SHELL ["/bin/bash", "-c"]
 
 RUN "/usr/bin/rg -V"
