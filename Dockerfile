@@ -2,18 +2,19 @@ FROM openjdk:11-jre-slim-buster
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV BUILD_DEPS="gosu wget procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
+ENV BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     DEBUG=false \
     SOLR_VERSION="8.8.1" \
     DOCSPELL_VERSION="0.21.0" \
     TZ=Etc/UTC \
     DOCSPELL_HEADER_VALUE=none \
-    DB_TYPE="mysql" \
-    DB_HOST="mysql" \
-    DB_PORT="3306" \
-    DB_NAME="docspell" \
-    DB_USER="docspell" \
-    DB_PASS="docspell"
+    DOCSPELL_DB_TYPE="mysql" \
+    DOCSPELL_DB_HOST="mysql" \
+    DOCSPELL_DB_PORT="3306" \
+    DOCSPELL_DB_NAME="docspell" \
+    DOCSPELL_DB_USER="docspell" \
+    DOCSPELL_DB_PASS="docspell" \
+    DOCSPELL_FULL_TEXT_SEARCH_ENABLED="true"
 
 RUN apt-get update \
     && apt-get -y install --no-install-recommends ${BUILD_DEPS} \
@@ -35,7 +36,9 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && wget -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-joex-${DOCSPELL_VERSION}.zip \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver \
-    && rm /opt/docspell/docspell-joex.zip  && rm /opt/docspell/docspell-restserver.zip
+    && rm /opt/docspell/docspell-joex.zip && rm /opt/docspell/docspell-restserver.zip \
+    && rg --replace "$(sed -n -e '/full-text-search/,/^  }/ p' /opt/docspell/restserver/conf/docspell-server.conf | sed -e '/enabled/ s/=.*/= ${DOCSPELL_FULL_TEXT_SEARCH_ENABLED}/')" \
+    --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' /opt/docspell/restserver/conf/docspell-server.conf > /opt/docspell/restserver/conf/docspell-server.conf
 
 VOLUME /config
 
