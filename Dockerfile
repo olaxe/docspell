@@ -40,9 +40,12 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && rm /opt/docspell/docspell-joex.zip && rm /opt/docspell/docspell-restserver.zip
 
 SHELL ["/bin/bash", "-c"]
-    
-RUN "sed -n -e '/full-text-search/,/^  }/ p' \"${DOCSPELL_CONF_SRV}\" | sed -e '/enabled/ s/=.*/= $$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search \
-    && rg --replace \"$(cat /tmp/__full_text_search)\" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' \"${DOCSPELL_CONF_SRV}\" >\"${DOCSPELL_CONF_SRV}\""
+
+RUN "/usr/bin/rg -V"
+
+RUN "sed -n -e '/full-text-search/,/^  }/ p' \"${DOCSPELL_CONF_SRV}\" | sed -e '/enabled/ s/=.*/= $$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search"
+RUN "cat /tmp/__full_text_search"
+RUN "/usr/bin/rg --replace \"$(cat /tmp/__full_text_search)\" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' \"${DOCSPELL_CONF_SRV}\" >\"${DOCSPELL_CONF_SRV}\""
 
 VOLUME /config
 
