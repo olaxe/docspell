@@ -3,7 +3,8 @@ FROM openjdk:11-jre-slim-buster
 ARG DEBIAN_FRONTEND=noninteractive \
     BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     SOLR_VERSION="8.8.1" \
-    DOCSPELL_VERSION="0.21.0"    
+    DOCSPELL_VERSION="0.21.0" \
+    DOCSPELL_CONF_SRV="/opt/docspell/restserver/conf/docspell-server.conf"
 
 ENV DEBUG=false \
     TZ=Etc/UTC \
@@ -40,9 +41,8 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
 
 SHELL ["/bin/bash", "-c"]
     
-RUN sed -n -e '/full-text-search/,/^  }/ p' /opt/docspell/restserver/conf/docspell-server.conf | sed -e '/enabled/ s/=.*/= \$$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search
-RUN rg --replace '`cat /tmp/__full_text_search`' --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' /opt/docspell/restserver/conf/docspell-server.conf \
-    > /opt/docspell/restserver/conf/docspell-server.conf
+RUN sed -n -e '/full-text-search/,/^  }/ p' ${DOCSPELL_CONF_SRV} | sed -e '/enabled/ s/=.*/= \$$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search
+RUN rg --replace '`cat /tmp/__full_text_search`' --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' ${DOCSPELL_CONF_SRV} >${DOCSPELL_CONF_SRV}
 
 VOLUME /config
 
