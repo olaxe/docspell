@@ -83,12 +83,12 @@ RUN sed -i -e '/  app-name/ s/=.*/= $\{DOCSPELL_RS_APP_NAME\}/' "${DOCSPELL_CONF
     && sed -i -e '/  app-id/ s/=.*/= $\{DOCSPELL_RS_APP_ID\}/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  base-url/ s/=.*/= $\{DOCSPELL_RS_BASE_URL\}/' "${DOCSPELL_CONF_RS}"
 
-RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >/tmp/__bind \
-    && sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' >/tmp/__bind \
-    && sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' >/tmp/__bind \
-    && cat /tmp/__bind \
-    && rg --replace "$(cat /tmp/__bind)" --passthru --no-line-number --multiline --multiline-dotall '  bind.*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
-    && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
+RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >/tmp/__bind
+RUN sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' /tmp/__bind
+RUN sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' /tmp/__bind
+RUN cat /tmp/__bind
+RUN rg --replace "$(cat /tmp/__bind)" --passthru --no-line-number --multiline --multiline-dotall '  bind.*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
+RUN rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
     
 RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" | sed -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search \
     && rg --replace "$(cat /tmp/__full_text_search)" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search {.*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
