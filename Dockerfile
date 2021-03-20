@@ -41,7 +41,8 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
 
 SHELL ["/bin/bash", "-c"]
 
-RUN sed -n -e '/full-text-search/,/^  }/ p' "${DOCSPELL_CONF_SRV}" | sed -e '/enabled/ s/=.*/= $$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search \
+RUN sed -i -e '/app-name/ s/=.*/= $\{DOCSPELL_APP_NAME\}/' "${DOCSPELL_CONF_SRV}" \
+    && sed -n -e '/full-text-search/,/^  }/ p' "${DOCSPELL_CONF_SRV}" | sed -e '/enabled/ s/=.*/= $$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search \
     && rg --replace "$(cat /tmp/__full_text_search)" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search.*?\n  }\n' "${DOCSPELL_CONF_SRV}" >"${DOCSPELL_CONF_SRV}.new" \
     && mv "${DOCSPELL_CONF_SRV}" "${DOCSPELL_CONF_SRV}.origin" && mv "${DOCSPELL_CONF_SRV}.new" "${DOCSPELL_CONF_SRV}"
 
