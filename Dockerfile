@@ -43,7 +43,7 @@ RUN /usr/bin/rg -V
 
 SHELL ["/bin/bash", "-c"]
 
-RUN "/usr/bin/rg -V"
+RUN /usr/bin/rg -V
 
 RUN "sed -n -e '/full-text-search/,/^  }/ p' \"${DOCSPELL_CONF_SRV}\" | sed -e '/enabled/ s/=.*/= $$\{DOCSPELL_FULL_TEXT_SEARCH_ENABLED\}/' >/tmp/__full_text_search"
 RUN "cat /tmp/__full_text_search"
