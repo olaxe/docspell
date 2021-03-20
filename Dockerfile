@@ -4,7 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive \
     BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     SOLR_VERSION="8.8.1" \
     DOCSPELL_VERSION="0.21.0" \
-    DOCSPELL_CONF_RS="/opt/docspell/restserver/conf/docspell-server.conf"
+    DOCSPELL_CONF_RS="/opt/docspell/restserver/conf/docspell-server.conf" \
     DOCSPELL_CONF_JOEX="/opt/docspell/joex/conf/docspell-joex.conf"
 
 ENV DEBUG=false \
