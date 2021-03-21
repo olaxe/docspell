@@ -78,9 +78,8 @@ RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirr
 VOLUME /var/solr/data
     
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver
-RUN wget -qO- "https://api.github.com/repos/eikek/docspell/releases/latest" | grep 'browser_download_url' | grep 'zip' >"${DOCSPELL_DOWNLOAD_URLS}"
-RUN cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'restserver' | sed -e 's/.*\/v\(.*\)\/.*/\1/' >"${DOCSPELL_VERSION}"
-RUN echo "Latest version of Docspell: " && cat "${DOCSPELL_VERSION}"
+RUN wget -qO- "https://api.github.com/repos/eikek/docspell/releases/latest" | grep 'browser_download_url' | grep 'zip' >"${DOCSPELL_DOWNLOAD_URLS}" && cat "${DOCSPELL_DOWNLOAD_URLS}"
+RUN cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'restserver' | sed -e 's/.*\/v\(.*\)\/.*/\1/' >"${DOCSPELL_VERSION}" && cat "${DOCSPELL_VERSION}"
 RUN cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'restserver' | sed -e 's/.*\": \"\(.*\)\".*/\1/' && wget -qi - -O /opt/docspell/docspell-restserver.zip
 RUN cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'joex' | sed -e 's/.*\": \"\(.*\)\".*/\1/' && wget -qi - -O /opt/docspell/docspell-joex.zip
 RUN bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex
