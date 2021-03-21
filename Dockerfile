@@ -109,7 +109,9 @@ RUN sed -n -e '/  backend {/,/^}/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BACKEND}" \
     && sed -i -e '/      url / s/=.*/= \"jdbc:$$\{DOCSPELL_DB_TYPE\}:\/\/$$\{DOCSPELL_DB_HOST\}:$$\{DOCSPELL_DB_PORT\}\/$$\{DOCSPELL_DB_NAME\}\"/' "${TMP_BACKEND}" \
     && sed -i -e '/      user / s/=.*/= $\{DOCSPELL_DB_USER\}/' "${TMP_BACKEND}" \
     && sed -i -e '/      password / s/=.*/= $\{DOCSPELL_DB_PASSWORD\}/' "${TMP_BACKEND}" \
-    && cat "${TMP_BACKEND}"
+    && cat "${TMP_BACKEND}" \
+    && rg --replace "$(cat ${TMP_BACKEND})" --passthru --no-line-number --multiline --multiline-dotall '  backend .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
+    && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
 
 VOLUME /config
 
