@@ -108,11 +108,11 @@ RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_FU
 
 RUN sed -n -e '/  backend {/,/^}/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BACKEND}" \
     && sed -i -e '/      url / s/=.*/= \"jdbc:$$\{DOCSPELL_DB_TYPE\}:\/\/$$\{DOCSPELL_DB_HOST\}:$$\{DOCSPELL_DB_PORT\}\/$$\{DOCSPELL_DB_NAME\}\"/' "${TMP_BACKEND}" \
-    && sed -i -e '/      user / s/=.*/= \"$\{DOCSPELL_DB_USER\}\"/' "${TMP_BACKEND}" \
-    && sed -i -e '/      password / s/=.*/= \"$\{DOCSPELL_DB_PASSWORD\}\"/' "${TMP_BACKEND}" \
-    && sed -i -e '/      mode / s/=.*/= \"$\{DOCSPELL_RS_BACKEND_SIGNUP_MODE\}\"/' "${TMP_BACKEND}" \
-    && sed -i -e '/      new-invite-password / s/=.*/= \"$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}\"/' "${TMP_BACKEND}" \
-    && sed -i -e '/      invite-time / s/=.*/= \"$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      user / s/=.*/= \"$$\{DOCSPELL_DB_USER\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      password / s/=.*/= \"$$\{DOCSPELL_DB_PASSWORD\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      mode / s/=.*/= \"$$\{DOCSPELL_RS_BACKEND_SIGNUP_MODE\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      new-invite-password / s/=.*/= \"$$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      invite-time / s/=.*/= \"$$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}\"/' "${TMP_BACKEND}" \
     && sed -i -e '/      chunk-size / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE\}/' "${TMP_BACKEND}" \
     && sed -i -e '/      valid-mime-types / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_VALID_MIME_TYPES\}/' "${TMP_BACKEND}" \
     && cat "${TMP_BACKEND}" \
