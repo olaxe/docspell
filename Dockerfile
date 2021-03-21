@@ -79,7 +79,7 @@ VOLUME /var/solr/data
     
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && wget -qO- "https://api.github.com/repos/eikek/docspell/releases/latest" | grep browser_download_url | grep zip >"${DOCSPELL_DOWNLOAD_URLS}" \
-    && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep restserver | sed -e 's/.*\/v\(.*\)\/.*/\1/')" >"${DOCSPELL_VERSION}" \
+    && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep restserver | sed -e 's/.*\/v\(.*\)\/.*/\1/' >"${DOCSPELL_VERSION}" \
     && echo "Latest version of Docspell: " && cat "${DOCSPELL_VERSION}" \
     && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep restserver | sed -e 's/.*\": \"\(.*\)\".*/\1/' && wget -qi - -O /opt/docspell/docspell-restserver.zip \
     && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep joex | sed -e 's/.*\": \"\(.*\)\".*/\1/' && wget -qi - -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-joex-${DOCSPELL_VERSION}.zip \
