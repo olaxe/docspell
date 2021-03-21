@@ -3,7 +3,7 @@ FROM openjdk:11-jre-slim-buster
 ARG DEBIAN_FRONTEND=noninteractive \
     BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     SOLR_VERSION="8.8.1" \
-    DOCSPELL_VERSION="0.21.0" \
+    DOCSPELL_VERSION="/tmp/__docspell_version" \
     DOCSPELL_CONF_RS="/opt/docspell/restserver/conf/docspell-server.conf" \
     DOCSPELL_CONF_JOEX="/opt/docspell/joex/conf/docspell-joex.conf" \
     TMP_BIND="/tmp/__bind" \
@@ -77,9 +77,10 @@ RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirr
 VOLUME /var/solr/data
     
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
-    && echo "Latest version of Docspell: ""$(wget -qO- 'https://api.github.com/repos/eikek/docspell/releases/latest' | grep browser_download_url | grep zip | grep restserver | sed -e 's/.*\/v\(.*\)\/.*/\1/')" \
-    && wget -q -O /opt/docspell/docspell-restserver.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-restserver-${DOCSPELL_VERSION}.zip \
-    && wget -q -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-joex-${DOCSPELL_VERSION}.zip \
+    && wget -qO- "https://api.github.com/repos/eikek/docspell/releases/latest" | grep browser_download_url | grep zip >"${DOCSPELL_VERSION}" \
+    && echo "Latest version of Docspell: \"$(cat ${DOCSPELL_VERSION} | grep restserver | sed -e 's/.*\/v\(.*\)\/.*/\1/')" \
+    && cat "${DOCSPELL_VERSION}" | grep restserver | sed -e 's/.*\": \"\(.*\)\".*/\1/' && wget -qi - -O /opt/docspell/docspell-restserver.zip \
+    && cat "${DOCSPELL_VERSION}" | grep joex | sed -e 's/.*\": \"\(.*\)\".*/\1/' && wget -qi - -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-joex-${DOCSPELL_VERSION}.zip \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver \
     && cp "${DOCSPELL_CONF_RS}" "${DOCSPELL_CONF_RS}.origin" && cp "${DOCSPELL_CONF_JOEX}" "${DOCSPELL_CONF_JOEX}.origin" \
