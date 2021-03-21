@@ -106,6 +106,9 @@ RUN rg --replace "$(cat ${TMP_FULL_TEXT_SEARCH})" --passthru --no-line-number --
 RUN rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
 
 RUN sed -n -e '/  backend {/,/^}/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BACKEND}" \
+    && sed -i -e '/      url / s/=.*/= \"jdbc:$$\{DOCSPELL_DB_TYPE\}:\/\/$$\{DOCSPELL_DB_HOST\}:$$\{DOCSPELL_DB_PORT\}\/$$\{DOCSPELL_DB_NAME\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      user / s/=.*/= $\{DOCSPELL_DB_USER\}/' "${TMP_BACKEND}" \
+    && sed -i -e '/      password / s/=.*/= $\{DOCSPELL_DB_PASSWORD\}/' "${TMP_BACKEND}" \
     && cat "${TMP_BACKEND}"
 
 VOLUME /config
