@@ -22,6 +22,7 @@ ENV DEBUG=false \
     DOCSPELL_DB_NAME="" \
     DOCSPELL_DB_USER="sa" \
     DOCSPELL_DB_PASS="" \
+    DOCSPELL_DB_H2_URL="jdbc:h2://\"${java.io.tmpdir}\"/docspell-demo.db;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE" \
     DOCSPELL_RS_APP_NAME="Docspell" \
     DOCSPELL_RS_APP_ID="rest1" \
     DOCSPELL_RS_BASE_URL="http://localhost:7880" \
@@ -85,30 +86,35 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
 
 SHELL ["/bin/bash", "-c"]
 
-RUN sed -i -e '/  app-name/ s/=.*/= $\{DOCSPELL_RS_APP_NAME\}/' "${DOCSPELL_CONF_RS}" \
-    && sed -i -e '/  app-id/ s/=.*/= $\{DOCSPELL_RS_APP_ID\}/' "${DOCSPELL_CONF_RS}" \
-    && sed -i -e '/  base-url/ s/=.*/= $\{DOCSPELL_RS_BASE_URL\}/' "${DOCSPELL_CONF_RS}" \
+RUN sed -i -e '/  app-name/ s/=.*/= \"$\{DOCSPELL_RS_APP_NAME\}\"/' "${DOCSPELL_CONF_RS}" \
+    && sed -i -e '/  app-id/ s/=.*/= \"$\{DOCSPELL_RS_APP_ID\}\"/' "${DOCSPELL_CONF_RS}" \
+    && sed -i -e '/  base-url/ s/=.*/= \"$\{DOCSPELL_RS_BASE_URL\}\"/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  max-item-page-size/ s/=.*/= $\{DOCSPELL_RS_MAX_ITEM_PAGE_SIZE\}/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  max-note-length/ s/=.*/= $\{DOCSPELL_RS_MAX_NOTE_LENGTH\}/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  show-classification-settings/ s/=.*/= $\{DOCSPELL_RS_SHOW_CLASSIFICATION_SETTINGS\}/' "${DOCSPELL_CONF_RS}"
 
 RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BIND}" \
-    && sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' "${TMP_BIND}" \
+    && sed -i -e '/address/ s/=.*/= \"$$\{DOCSPELL_RS_BIND_ADDRESS\}\"/' "${TMP_BIND}" \
     && sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' "${TMP_BIND}" \
     && cat "${TMP_BIND}" \
     && rg --replace "$(cat ${TMP_BIND})" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
     && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
     
-RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_FULL_TEXT_SEARCH}"
-RUN sed -i -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' "${TMP_FULL_TEXT_SEARCH}"
-RUN cat "${TMP_FULL_TEXT_SEARCH}"
-RUN rg --replace "$(cat ${TMP_FULL_TEXT_SEARCH})" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new"
-RUN rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
+RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_FULL_TEXT_SEARCH}" \
+    && sed -i -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' "${TMP_FULL_TEXT_SEARCH}" \
+    && cat "${TMP_FULL_TEXT_SEARCH}" \
+    && rg --replace "$(cat ${TMP_FULL_TEXT_SEARCH})" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
+    && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
 
 RUN sed -n -e '/  backend {/,/^}/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BACKEND}" \
     && sed -i -e '/      url / s/=.*/= \"jdbc:$$\{DOCSPELL_DB_TYPE\}:\/\/$$\{DOCSPELL_DB_HOST\}:$$\{DOCSPELL_DB_PORT\}\/$$\{DOCSPELL_DB_NAME\}\"/' "${TMP_BACKEND}" \
     && sed -i -e '/      user / s/=.*/= \"$\{DOCSPELL_DB_USER\}\"/' "${TMP_BACKEND}" \
     && sed -i -e '/      password / s/=.*/= \"$\{DOCSPELL_DB_PASSWORD\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      mode / s/=.*/= \"$\{DOCSPELL_RS_BACKEND_SIGNUP_MODE\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      new-invite-password / s/=.*/= \"$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      invite-time / s/=.*/= \"$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}\"/' "${TMP_BACKEND}" \
+    && sed -i -e '/      chunk-size / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE\}/' "${TMP_BACKEND}" \
+    && sed -i -e '/      valid-mime-types / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_VALID_MIME_TYPES\}/' "${TMP_BACKEND}" \
     && cat "${TMP_BACKEND}" \
     && rg --replace "$(cat ${TMP_BACKEND})" --passthru --no-line-number --multiline --multiline-dotall '  backend .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
     && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
