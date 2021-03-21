@@ -58,7 +58,8 @@ ENV DEBUG=false \
     DOCSPELL_RS_BACKEND_SIGNUP_MODE="open" \
     DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD="" \
     DOCSPELL_RS_BACKEND_SIGNUP_INVITE_TIME="3 days" \
-    DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288"
+    DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288" \
+    DOCSPEEL_VERSION=
 
 RUN apt-get update \
     && apt-get -y install --no-install-recommends ${BUILD_DEPS} \
@@ -76,6 +77,7 @@ RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirr
 VOLUME /var/solr/data
     
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
+    && echo "Latest version of Docspell: ""$(wget -qO- 'https://api.github.com/repos/eikek/docspell/releases/latest' | grep browser_download_url | grep zip | grep restserver | sed -e 's/.*\/v\(.*\)\/.*/\1/')"
     && wget -q -O /opt/docspell/docspell-restserver.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-restserver-${DOCSPELL_VERSION}.zip \
     && wget -q -O /opt/docspell/docspell-joex.zip https://github.com/eikek/docspell/releases/download/v${DOCSPELL_VERSION}/docspell-joex-${DOCSPELL_VERSION}.zip \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex \
