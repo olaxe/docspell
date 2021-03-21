@@ -59,7 +59,7 @@ ENV DEBUG=false \
     DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD="" \
     DOCSPELL_RS_BACKEND_SIGNUP_INVITE_TIME="3 days" \
     DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288" \
-    DOCSPELL_RS_BACKEND_FILES_VALID_MIME_TYPES=""
+    DOCSPELL_RS_BACKEND_FILES_VALID_MIME_TYPES="[ ]"
 
 RUN apt-get update \
     && apt-get -y install --no-install-recommends ${BUILD_DEPS} \
@@ -112,7 +112,7 @@ RUN sed -n -e '/  backend {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BACKEND}" \
     && sed -i -e '/      password / s/=.*/= $$\{DOCSPELL_DB_PASS\}/' "${TMP_BACKEND}" \
     && sed -i -e '/      mode / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_MODE\}/' "${TMP_BACKEND}" \
     && sed -i -e '/      new-invite-password / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}/' "${TMP_BACKEND}" \
-    && sed -i -e '/      invite-time / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}/' "${TMP_BACKEND}" \
+    && sed -i -e '/      invite-time / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_INVITE_TIME\}/' "${TMP_BACKEND}" \
     && sed -i -e '/      chunk-size / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE\}/' "${TMP_BACKEND}" \
     && sed -i -e '/      valid-mime-types / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_VALID_MIME_TYPES\}/' "${TMP_BACKEND}" \
     && cat "${TMP_BACKEND}" \
