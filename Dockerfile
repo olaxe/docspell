@@ -22,7 +22,7 @@ ENV DEBUG=false \
     DOCSPELL_DB_NAME="" \
     DOCSPELL_DB_USER="sa" \
     DOCSPELL_DB_PASS="" \
-    DOCSPELL_DB_H2_URL="jdbc:h2://\"${java.io.tmpdir}\"/docspell-demo.db;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE" \
+    DOCSPELL_DB_H2_URL="jdbc:h2://\"\${java.io.tmpdir}\\"/docspell-demo.db;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE" \
     DOCSPELL_RS_APP_NAME="Docspell" \
     DOCSPELL_RS_APP_ID="rest1" \
     DOCSPELL_RS_BASE_URL="http://localhost:7880" \
