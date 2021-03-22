@@ -21,7 +21,6 @@ ARG DEBIAN_FRONTEND=noninteractive \
 # Environment variables to modify the behavior of the container
 ENV DEBUG=false \
     TZ=Etc/UTC \
-    DOCSPELL_HEADER_VALUE=none \
     DOCSPELL_DB_TYPE="h2" \
     DOCSPELL_DB_HOST="" \
     DOCSPELL_DB_PORT="" \
