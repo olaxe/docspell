@@ -103,6 +103,7 @@ RUN ./autogen.sh \
 # Install latest version ocrmypdf to take benefit of latest features
 RUN python3 -m pip install --upgrade pip \
     && python3 -m pip install --upgrade Pillow \
+    && python3 -m pip install wheel \
     && python3 -m pip install git+https://github.com/jbarlow83/OCRmyPDF.git
 
 # Install the full-text search Apache Solr
