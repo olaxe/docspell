@@ -19,7 +19,7 @@ ARG DEBIAN_FRONTEND=noninteractive \
     # Prerequisites to build ocrmypdf    
         python3-pip python3-setuptools git pngquant qpdf \
     # Prerequisites to build Jbig2enc
-         automake libtool libleptonica-dev zlib1g-dev" \       
+         automake autoconf libtool libleptonica-dev zlib1g-dev" \       
     SOLR_VERSION="8.8.1" \
     DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
