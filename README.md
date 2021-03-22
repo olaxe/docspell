@@ -1,7 +1,5 @@
 # docspell
-Docspell image specifically designed for ARM64 with Solr, Docspell Joex and Docspell Rest server
-
-Docspell image specifically designed for ARM64 and can also work for AMD64.
+Docspell image specifically designed for ARM64 with Solr, Docspell Joex and Docspell Rest server and can also work for AMD64
 
 One container for Docspell that include solr, joex & restserver. You only need an extra container for the database MariaDB or PostgreSQL.
 
