@@ -2,7 +2,7 @@ FROM openjdk:11-jre-slim-buster
 
 # Build-time variables to create images
 ARG DEBIAN_FRONTEND=noninteractive \
-    BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
+    BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-ita tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-nld tesseract-ocr-rus tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     SOLR_VERSION="8.8.1" \
     DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
@@ -63,7 +63,9 @@ ENV DEBUG=false \
     DOCSPELL_RS_BACKEND_SIGNUP_MODE="open" \
     DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD="" \
     DOCSPELL_RS_BACKEND_SIGNUP_INVITE_TIME="3 days" \
-    DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288"
+    DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288" \
+# https://docspell.org/docs/configure/#memory-usage    
+    JAVA_OPTS="-Xmx1536M"
 
 # Install all packages needed
 RUN apt-get update \
