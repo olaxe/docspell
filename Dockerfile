@@ -2,7 +2,24 @@ FROM openjdk:11-jre-slim-buster
 
 # Build-time variables to create images
 ARG DEBIAN_FRONTEND=noninteractive \
-    BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-ita tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-nld tesseract-ocr-rus tesseract-ocr-eng unpaper unoconv wkhtmltopdf python3-pip git" \
+    BUILD_DEPS=" \
+    # Prerequisites for the Dockerfile
+        gosu \
+        wget \
+        ripgrep \
+        bsdtar \
+    # Prerequisites for Solr
+        procps \
+        lsof \
+    # Prerequisites for Docspell
+        ghostscript \
+        tesseract-ocr \
+        tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-ita tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-nld tesseract-ocr-rus tesseract-ocr-eng \
+        unpaper unoconv wkhtmltopdf \
+    # Prerequisites to build ocrmypdf    
+        python3-pip python3-setuptools git pngquant qpdf \
+    # Prerequisites to build Jbig2enc
+         automake libtool libleptonica-dev"       
     SOLR_VERSION="8.8.1" \
     DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
@@ -74,12 +91,19 @@ RUN apt-get update \
     && apt-get -y clean \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /opt
+
+# Install Jbig2enc
+RUN git clone https://github.com/agl/jbig2enc
+WORKDIR /opt/jbig2enc
+RUN ./autogen.sh \
+    && ./configure && make \
+    && make install
+
 # Install latest version ocrmypdf to take benefit of latest features
 RUN python3 -m pip install --upgrade pip \
     && python3 -m pip install --upgrade Pillow \
     && pip3 install git+https://github.com/jbarlow83/OCRmyPDF.git
-
-WORKDIR /opt
 
 # Install the full-text search Apache Solr
 RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz \
