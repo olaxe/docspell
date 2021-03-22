@@ -3,6 +3,7 @@ FROM openjdk:11-jre-slim-buster
 ARG DEBIAN_FRONTEND=noninteractive \
     BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     SOLR_VERSION="8.8.1" \
+    DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
     DOCSPELL_DOWNLOAD_URLS="/tmp/__docspell_dl_urls" \
     DOCSPELL_CONF_RS="/opt/docspell/restserver/conf/docspell-server.conf" \
@@ -82,13 +83,13 @@ VOLUME /var/solr/data
 
 # Install the latest version of Docspell
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
-    && wget -qO- "https://api.github.com/repos/eikek/docspell/releases/latest" | grep 'browser_download_url' | grep 'zip' >"${DOCSPELL_DOWNLOAD_URLS}" && cat "${DOCSPELL_DOWNLOAD_URLS}" \
+    && wget -qO- "${DOCSPELL_LATEST_VERSION_URL}" | grep 'browser_download_url' | grep 'zip' >"${DOCSPELL_DOWNLOAD_URLS}" && cat "${DOCSPELL_DOWNLOAD_URLS}" \
     && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'restserver' | cut -d '/' -f 8 >"${DOCSPELL_VERSION}" && cat "${DOCSPELL_VERSION}" \
     && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'restserver' | cut -d '"' -f 4 | wget -qi - -O /opt/docspell/docspell-restserver.zip \
     && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'joex' | cut -d '"' -f 4 | wget -qi - -O /opt/docspell/docspell-joex.zip \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-joex.zip" -C /opt/docspell/joex \
     && bsdtar --strip-components=1 -xvf "/opt/docspell/docspell-restserver.zip" -C /opt/docspell/restserver \
-    && cp "${DOCSPELL_CONF_RS}" "${DOCSPELL_CONF_RS}.origin" && cp "${DOCSPELL_CONF_JOEX}" "${DOCSPELL_CONF_JOEX}.origin" \
+    && cp "${DOCSPELL_CONF_RS}" "${DOCSPELL_CONF_RS}.origin" && cp "${DOCSPELL_CONF_JO}" "${DOCSPELL_CONF_JO}.origin" \
     && rm /opt/docspell/docspell-joex.zip && rm /opt/docspell/docspell-restserver.zip
 
 # Switch to Bash for next RUN commands. useful for the file configurations
