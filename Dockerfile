@@ -17,7 +17,7 @@ ARG DEBIAN_FRONTEND=noninteractive \
         tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-ita tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-nld tesseract-ocr-rus tesseract-ocr-eng \
         unpaper unoconv wkhtmltopdf \
     # Prerequisites to build ocrmypdf    
-        python3-pip python3-setuptools git pngquant qpdf \
+        python3-pip python3-setuptools git pngquant qpdf libqpdf-dev \
     # Prerequisites to build Jbig2enc
          automake autoconf build-essential libtool libleptonica-dev zlib1g-dev" \       
     SOLR_VERSION="8.8.1" \
