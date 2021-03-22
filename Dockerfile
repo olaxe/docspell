@@ -6,13 +6,15 @@ ARG DEBIAN_FRONTEND=noninteractive \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
     DOCSPELL_DOWNLOAD_URLS="/tmp/__docspell_dl_urls" \
     DOCSPELL_CONF_RS="/opt/docspell/restserver/conf/docspell-server.conf" \
-    DOCSPELL_CONF_JOEX="/opt/docspell/joex/conf/docspell-joex.conf" \
-    TMP_BIND="/tmp/__bind" \
-    TMP_AUTH="/tmp/__auth" \
-    TMP_INTEGRATION_ENDPOINT="/tmp/__integration_endpoint" \
-    TMP_ADMIN_ENDPOINT="/tmp/__admin_endpoint" \
-    TMP_FULL_TEXT_SEARCH="/tmp/__full_text_search" \
-    TMP_BACKEND="/tmp/__backend"
+    DOCSPELL_CONF_JO="/opt/docspell/joex/conf/docspell-joex.conf" \
+    TMP_RS_BIND="/tmp/__rs_bind" \
+    TMP_RS_AUTH="/tmp/__rs_auth" \
+    TMP_RS_INTEGRATION_ENDPOINT="/tmp/__rs_integration_endpoint" \
+    TMP_RS_ADMIN_ENDPOINT="/tmp/__rs_admin_endpoint" \
+    TMP_RS_FULL_TEXT_SEARCH="/tmp/__rs_full_text_search" \
+    TMP_RS_BACKEND="/tmp/__rs_backend" \
+    TMP_JO_BIND="/tmp/__jo_bind" \
+    TMP_JO_JDBC="/tmp/__jo_jdbc" \
 
 ENV DEBUG=false \
     TZ=Etc/UTC \
@@ -62,6 +64,7 @@ ENV DEBUG=false \
     DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288" \
     DOCSPEEL_VERSION=
 
+# Install all packages needed
 RUN apt-get update \
     && apt-get -y install --no-install-recommends ${BUILD_DEPS} \
     && apt-get -y autoremove \
@@ -70,13 +73,14 @@ RUN apt-get update \
     
 WORKDIR /opt
 
+# Install the full-text search Apache Solr
 RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz \
     && tar zxf /opt/solr/solr.tgz --strip 1 -C /opt/solr && rm /opt/solr/solr.tgz \
     && useradd --user-group --system --home-dir /opt/solr solr \
-    && chown solr --recursive /opt/solr
-    
+    && chown solr --recursive /opt/solr    
 VOLUME /var/solr/data
-    
+
+# Install the latest version of Docspell
 RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && wget -qO- "https://api.github.com/repos/eikek/docspell/releases/latest" | grep 'browser_download_url' | grep 'zip' >"${DOCSPELL_DOWNLOAD_URLS}" && cat "${DOCSPELL_DOWNLOAD_URLS}" \
     && cat "${DOCSPELL_DOWNLOAD_URLS}" | grep 'restserver' | cut -d '/' -f 8 >"${DOCSPELL_VERSION}" && cat "${DOCSPELL_VERSION}" \
@@ -87,8 +91,10 @@ RUN mkdir -p /opt/docspell/joex && mkdir -p /opt/docspell/restserver \
     && cp "${DOCSPELL_CONF_RS}" "${DOCSPELL_CONF_RS}.origin" && cp "${DOCSPELL_CONF_JOEX}" "${DOCSPELL_CONF_JOEX}.origin" \
     && rm /opt/docspell/docspell-joex.zip && rm /opt/docspell/docspell-restserver.zip
 
+# Switch to Bash for next RUN commands. useful for the file configurations
 SHELL ["/bin/bash", "-c"]
 
+# Add ENV variables to the first level options of the Restserver config file
 RUN sed -i -e '/  app-name/ s/=.*/= $\{DOCSPELL_RS_APP_NAME\}/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  app-id/ s/=.*/= $\{DOCSPELL_RS_APP_ID\}/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  base-url/ s/=.*/= $\{DOCSPELL_RS_BASE_URL\}/' "${DOCSPELL_CONF_RS}" \
@@ -96,30 +102,42 @@ RUN sed -i -e '/  app-name/ s/=.*/= $\{DOCSPELL_RS_APP_NAME\}/' "${DOCSPELL_CONF
     && sed -i -e '/  max-note-length/ s/=.*/= $\{DOCSPELL_RS_MAX_NOTE_LENGTH\}/' "${DOCSPELL_CONF_RS}" \
     && sed -i -e '/  show-classification-settings/ s/=.*/= $\{DOCSPELL_RS_SHOW_CLASSIFICATION_SETTINGS\}/' "${DOCSPELL_CONF_RS}"
 
-RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BIND}" \
-    && sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' "${TMP_BIND}" \
-    && sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' "${TMP_BIND}" \
-    && cat "${TMP_BIND}" \
-    && rg --replace "$(cat ${TMP_BIND})" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
-    && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
-    
-RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_FULL_TEXT_SEARCH}" \
-    && sed -i -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' "${TMP_FULL_TEXT_SEARCH}" \
-    && cat "${TMP_FULL_TEXT_SEARCH}" \
-    && rg --replace "$(cat ${TMP_FULL_TEXT_SEARCH})" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
+# Add ENV variables to the bind block options of the Restserver config file
+RUN sed -n -e '/  bind {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_RS_BIND}" \
+    && sed -i -e '/address/ s/=.*/= $$\{DOCSPELL_RS_BIND_ADDRESS\}/' "${TMP_RS_BIND}" \
+    && sed -i -e '/port/ s/=.*/= $$\{DOCSPELL_RS_BIND_PORT\}/' "${TMP_RS_BIND}" \
+    && cat "${TMP_RS_BIND}" \
+    && rg --replace "$(cat ${TMP_RS_BIND})" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
     && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
 
-RUN sed -n -e '/  backend {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_BACKEND}" \
-    && sed -i -e '/      url / s/=.*/= \"jdbc:\"$$\{DOCSPELL_DB_TYPE\}\":\/\/\"$$\{DOCSPELL_DB_HOST\}\":\"$$\{DOCSPELL_DB_PORT\}\"\/\"$$\{DOCSPELL_DB_NAME\}/' "${TMP_BACKEND}" \
-    && sed -i -e '/      user / s/=.*/= $$\{DOCSPELL_DB_USER\}/' "${TMP_BACKEND}" \
-    && sed -i -e '/      password / s/=.*/= $$\{DOCSPELL_DB_PASS\}/' "${TMP_BACKEND}" \
-    && sed -i -e '/      mode / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_MODE\}/' "${TMP_BACKEND}" \
-    && sed -i -e '/      new-invite-password / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}/' "${TMP_BACKEND}" \
-    && sed -i -e '/      invite-time / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_INVITE_TIME\}/' "${TMP_BACKEND}" \
-    && sed -i -e '/      chunk-size / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE\}/' "${TMP_BACKEND}" \
-    && cat "${TMP_BACKEND}" \
-    && rg --replace "$(cat ${TMP_BACKEND})" --passthru --no-line-number --multiline --multiline-dotall '  backend .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
+# Add ENV variables to the full-text-search block options of the Restserver config file
+RUN sed -n -e '/  full-text-search {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_RS_FULL_TEXT_SEARCH}" \
+    && sed -i -e '/enabled/ s/=.*/= $$\{DOCSPELL_RS_FULL_TEXT_SEARCH_ENABLED\}/' "${TMP_RS_FULL_TEXT_SEARCH}" \
+    && cat "${TMP_RS_FULL_TEXT_SEARCH}" \
+    && rg --replace "$(cat ${TMP_RS_FULL_TEXT_SEARCH})" --passthru --no-line-number --multiline --multiline-dotall '  full-text-search .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
     && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
+
+# Add ENV variables to the backend block options of the Restserver config file
+RUN sed -n -e '/  backend {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_RS_BACKEND}" \
+    && sed -i -e '/      url / s/=.*/= \"jdbc:\"$$\{DOCSPELL_DB_TYPE\}\":\/\/\"$$\{DOCSPELL_DB_HOST\}\":\"$$\{DOCSPELL_DB_PORT\}\"\/\"$$\{DOCSPELL_DB_NAME\}/' "${TMP_RS_BACKEND}" \
+    && sed -i -e '/      user / s/=.*/= $$\{DOCSPELL_DB_USER\}/' "${TMP_RS_BACKEND}" \
+    && sed -i -e '/      password / s/=.*/= $$\{DOCSPELL_DB_PASS\}/' "${TMP_RS_BACKEND}" \
+    && sed -i -e '/      mode / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_MODE\}/' "${TMP_RS_BACKEND}" \
+    && sed -i -e '/      new-invite-password / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD\}/' "${TMP_RS_BACKEND}" \
+    && sed -i -e '/      invite-time / s/=.*/= $$\{DOCSPELL_RS_BACKEND_SIGNUP_INVITE_TIME\}/' "${TMP_RS_BACKEND}" \
+    && sed -i -e '/      chunk-size / s/=.*/= $$\{DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE\}/' "${TMP_RS_BACKEND}" \
+    && cat "${TMP_RS_BACKEND}" \
+    && rg --replace "$(cat ${TMP_RS_BACKEND})" --passthru --no-line-number --multiline --multiline-dotall '  backend .*?\n  }\n' "${DOCSPELL_CONF_RS}" >"${DOCSPELL_CONF_RS}.new" \
+    && rm "${DOCSPELL_CONF_RS}" && mv "${DOCSPELL_CONF_RS}.new" "${DOCSPELL_CONF_RS}"
+
+# Add ENV variables to the JDBC block options of the Joex config file
+RUN sed -n -e '/  jdbc {/,/^  }/ p' "${DOCSPELL_CONF_JO}" >"${TMP_JO_JDBC}" \
+    && sed -i -e '/      url / s/=.*/= \"jdbc:\"$$\{DOCSPELL_DB_TYPE\}\":\/\/\"$$\{DOCSPELL_DB_HOST\}\":\"$$\{DOCSPELL_DB_PORT\}\"\/\"$$\{DOCSPELL_DB_NAME\}/' "${TMP_JO_JDBC}" \
+    && sed -i -e '/      user / s/=.*/= $$\{DOCSPELL_DB_USER\}/' "${TMP_JO_JDBC}" \
+    && sed -i -e '/      password / s/=.*/= $$\{DOCSPELL_DB_PASS\}/' "${TMP_JO_JDBC}" \
+    && cat "${TMP_JO_JDBC}" \
+    && rg --replace "$(cat ${TMP_JO_JDBC})" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_JO}" >"${DOCSPELL_CONF_JO}.new" \
+    && rm "${DOCSPELL_CONF_JO}" && mv "${DOCSPELL_CONF_JO}.new" "${DOCSPELL_CONF_JO}"
 
 VOLUME /config
 
