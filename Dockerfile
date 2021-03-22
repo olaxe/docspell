@@ -19,7 +19,7 @@ ARG DEBIAN_FRONTEND=noninteractive \
     # Prerequisites to build ocrmypdf    
         python3-pip python3-setuptools git pngquant qpdf \
     # Prerequisites to build Jbig2enc
-         automake autoconf libtool libleptonica-dev zlib1g-dev" \       
+         automake autoconf build-essential libtool libleptonica-dev zlib1g-dev" \       
     SOLR_VERSION="8.8.1" \
     DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
@@ -103,7 +103,7 @@ RUN ./autogen.sh \
 # Install latest version ocrmypdf to take benefit of latest features
 RUN python3 -m pip install --upgrade pip \
     && python3 -m pip install --upgrade Pillow \
-    && pip3 install git+https://github.com/jbarlow83/OCRmyPDF.git
+    && python3 -m pip install git+https://github.com/jbarlow83/OCRmyPDF.git
 
 # Install the full-text search Apache Solr
 RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz \
