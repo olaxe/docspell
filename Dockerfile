@@ -1,5 +1,6 @@
 FROM openjdk:11-jre-slim-buster
 
+# Build-time variables to create images
 ARG DEBIAN_FRONTEND=noninteractive \
     BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf ocrmypdf" \
     SOLR_VERSION="8.8.1" \
@@ -17,6 +18,7 @@ ARG DEBIAN_FRONTEND=noninteractive \
     TMP_JO_BIND="/tmp/__jo_bind" \
     TMP_JO_JDBC="/tmp/__jo_jdbc" \
 
+# Environment variables to modify the behavior of the container
 ENV DEBUG=false \
     TZ=Etc/UTC \
     DOCSPELL_HEADER_VALUE=none \
@@ -62,8 +64,7 @@ ENV DEBUG=false \
     DOCSPELL_RS_BACKEND_SIGNUP_MODE="open" \
     DOCSPELL_RS_BACKEND_SIGNUP_NEW_INVITE_PASSWORD="" \
     DOCSPELL_RS_BACKEND_SIGNUP_INVITE_TIME="3 days" \
-    DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288" \
-    DOCSPEEL_VERSION=
+    DOCSPELL_RS_BACKEND_FILES_CHUNK_SIZE="524288"
 
 # Install all packages needed
 RUN apt-get update \
