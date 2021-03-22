@@ -2,7 +2,7 @@ FROM openjdk:11-jre-slim-buster
 
 # Build-time variables to create images
 ARG DEBIAN_FRONTEND=noninteractive \
-    BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-ita tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-nld tesseract-ocr-rus tesseract-ocr-eng unpaper unoconv wkhtmltopdf python3-pip" \
+    BUILD_DEPS="gosu wget ripgrep procps lsof bsdtar ghostscript tesseract-ocr tesseract-ocr-fra tesseract-ocr-deu tesseract-ocr-ita tesseract-ocr-spa tesseract-ocr-por tesseract-ocr-nld tesseract-ocr-rus tesseract-ocr-eng unpaper unoconv wkhtmltopdf python3-pip git" \
     SOLR_VERSION="8.8.1" \
     DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
@@ -77,7 +77,7 @@ RUN apt-get update \
 # Install latest version ocrmypdf to take benefit of latest features
 RUN python3 -m pip install --upgrade pip \
     && python3 -m pip install --upgrade Pillow \
-    && pip3 install ocrmypdf
+    && pip3 install git+https://github.com/jbarlow83/OCRmyPDF.git
 
 WORKDIR /opt
 
