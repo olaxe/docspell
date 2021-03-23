@@ -93,20 +93,23 @@ RUN apt-get update \
     && apt-get -y clean \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt
-
 # Install Jbig2enc
 RUN git clone https://github.com/agl/jbig2enc
 WORKDIR /opt/jbig2enc
-RUN ./autogen.sh \
-    && ./configure && make \
-    && make install
+RUN ./autogen.sh && ./configure && make && make install
+    
+# Install the latest version of qpdf
+RUN git clone https://github.com/qpdf/qpdf
+WORKDIR /opt/qpdf
+RUN ./configure && make && make install
 
-# Install latest version ocrmypdf to take benefit of latest features
+# Install latest version of ocrmypdf
 RUN python3 -m pip install --upgrade pip \
     && python3 -m pip install --upgrade Pillow \
     && python3 -m pip install wheel \
     && python3 -m pip install git+https://github.com/jbarlow83/OCRmyPDF.git
+
+WORKDIR /opt
 
 # Install the full-text search Apache Solr
 RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz \
