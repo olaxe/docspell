@@ -100,17 +100,17 @@ WORKDIR /opt/jbig2enc
 RUN ./autogen.sh && ./configure && make && make install
     
 # Install the latest version of qpdf
+WORKDIR /opt
 RUN git clone https://github.com/qpdf/qpdf
 WORKDIR /opt/qpdf
 RUN ./configure && make && make install
 
 # Install latest version of ocrmypdf
+WORKDIR /opt
 RUN python3 -m pip install --upgrade pip \
     && python3 -m pip install --upgrade Pillow \
     && python3 -m pip install wheel \
     && python3 -m pip install git+https://github.com/jbarlow83/OCRmyPDF.git
-
-WORKDIR /opt
 
 # Install the full-text search Apache Solr
 RUN mkdir -p /opt/solr && wget -q -O /opt/solr/solr.tgz https://apache.mediamirrors.org/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz \
