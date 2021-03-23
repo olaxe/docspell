@@ -94,6 +94,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Jbig2enc
+WORKDIR /opt
 RUN git clone https://github.com/agl/jbig2enc
 WORKDIR /opt/jbig2enc
 RUN ./autogen.sh && ./configure && make && make install
