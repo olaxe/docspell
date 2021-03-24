@@ -21,7 +21,10 @@ ARG DEBIAN_FRONTEND=noninteractive \
     # Prerequisites to build ocrmypdf    
         python3-pip python3-setuptools git pngquant qpdf libqpdf-dev python3-dev libxml2-dev libxslt-dev \
     # Prerequisites to build Jbig2enc
-         automake autoconf build-essential libtool libleptonica-dev zlib1g-dev" \       
+         automake autoconf build-essential libtool libleptonica-dev zlib1g-dev" \
+    # Needed for the QPDF compilation
+    LD_LIBRARY_PATH="/usr/local/lib" \
+    # Variables for the Dockerfile
     SOLR_VERSION="8.8.1" \
     DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
     DOCSPELL_VERSION="/opt/docspell/version.txt" \
