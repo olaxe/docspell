@@ -24,6 +24,8 @@ ARG DEBIAN_FRONTEND=noninteractive \
          automake autoconf build-essential libtool libleptonica-dev zlib1g-dev" \
     # Needed for the QPDF compilation
     LD_LIBRARY_PATH="/usr/local/lib" \
+    # Needed for the pikepdf compilation
+    QPDF_SOURCE_TREE="/opt/pikepdf" \
     # Variables for the Dockerfile
     SOLR_VERSION="8.8.1" \
     DOCSPELL_LATEST_VERSION_URL="https://api.github.com/repos/eikek/docspell/releases/latest" \
@@ -94,7 +96,8 @@ RUN apt-get update \
     && apt-get -y install --no-install-recommends ${BUILD_DEPS} \
     && apt-get -y autoremove \
     && apt-get -y clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3 /usr/bin/python
 
 # Install Jbig2enc
 WORKDIR /opt
@@ -107,6 +110,12 @@ WORKDIR /opt
 RUN git clone https://github.com/qpdf/qpdf
 WORKDIR /opt/qpdf
 RUN ./configure && make && make install
+
+# Install the latest version of pikepdf
+WORKDIR /opt
+RUN git clone https://github.com/pikepdf/pikepdf
+WORKDIR /opt/pikepdf
+RUN python3 -m pip install pybind11 && export LDFLAGS='-L/usr/local/lib' && export CFLAGS='-I/usr/local/include/qpdf' && python3 -m pip install .
 
 # Install latest version of ocrmypdf
 WORKDIR /opt
