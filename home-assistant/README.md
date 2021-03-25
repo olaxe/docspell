@@ -1,6 +1,6 @@
 # Home Assistant - Portainer
 
-The docker compose provided is the minimum one. More environment settings exist and can be found in the Dockerfile.
+The docker compose provided is adapted for the addon Portainer inside Home Assistant.
 
 Assumptions:
 - You have installed the MariaDB addon
