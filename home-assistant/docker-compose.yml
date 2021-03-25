@@ -1,0 +1,18 @@
+version: "2.4"
+services:
+  docspell:
+    image: olaxe/docspell:latest
+    restart: unless-stopped
+    environment:
+      TZ: 'Europe/Paris'
+      DOCSPELL_DB_TYPE: 'mariadb'
+      DOCSPELL_DB_HOST: 'core-mariadb'
+      DOCSPELL_DB_NAME: 'docspell'
+      DOCSPELL_DB_USER: 'docspell'
+      DOCSPELL_DB_PASS: 'some-secret'
+      DOCSPELL_RS_BASE_URL: 'https://dms.my-domain.com'
+    ports:
+      - "7880:7880"
+    network_mode: "hassio"
+    volumes:
+      - /mnt/data/supervisor/share/docspell_solr-data:/var/solr/data
