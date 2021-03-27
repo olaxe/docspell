@@ -183,9 +183,9 @@ RUN sed -n -e '/  backend {/,/^  }/ p' "${DOCSPELL_CONF_RS}" >"${TMP_RS_BACKEND}
 
 # Add ENV variables to the JDBC block options of the Joex config file
 RUN sed -n -e '/  jdbc {/,/^  }/ p' "${DOCSPELL_CONF_JO}" >"${TMP_JO_JDBC}" \
-    && sed -i -e '/      url / s/=.*/= \"jdbc:\"$$\{DOCSPELL_DB_TYPE\}\":\/\/\"$$\{DOCSPELL_DB_HOST\}\":\"$$\{DOCSPELL_DB_PORT\}\"\/\"$$\{DOCSPELL_DB_NAME\}/' "${TMP_JO_JDBC}" \
-    && sed -i -e '/      user / s/=.*/= $$\{DOCSPELL_DB_USER\}/' "${TMP_JO_JDBC}" \
-    && sed -i -e '/      password / s/=.*/= $$\{DOCSPELL_DB_PASS\}/' "${TMP_JO_JDBC}" \
+    && sed -i -e '/    url / s/=.*/= \"jdbc:\"$$\{DOCSPELL_DB_TYPE\}\":\/\/\"$$\{DOCSPELL_DB_HOST\}\":\"$$\{DOCSPELL_DB_PORT\}\"\/\"$$\{DOCSPELL_DB_NAME\}/' "${TMP_JO_JDBC}" \
+    && sed -i -e '/    user / s/=.*/= $$\{DOCSPELL_DB_USER\}/' "${TMP_JO_JDBC}" \
+    && sed -i -e '/    password / s/=.*/= $$\{DOCSPELL_DB_PASS\}/' "${TMP_JO_JDBC}" \
     && cat "${TMP_JO_JDBC}" \
     && rg --replace "$(cat ${TMP_JO_JDBC})" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_JO}" >"${DOCSPELL_CONF_JO}.new" \
     && rm "${DOCSPELL_CONF_JO}" && mv "${DOCSPELL_CONF_JO}.new" "${DOCSPELL_CONF_JO}"
