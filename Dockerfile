@@ -187,7 +187,7 @@ RUN sed -n -e '/  jdbc {/,/^  }/ p' "${DOCSPELL_CONF_JO}" >"${TMP_JO_JDBC}" \
     && sed -i -e '/    user / s/=.*/= $$\{DOCSPELL_DB_USER\}/' "${TMP_JO_JDBC}" \
     && sed -i -e '/    password / s/=.*/= $$\{DOCSPELL_DB_PASS\}/' "${TMP_JO_JDBC}" \
     && cat "${TMP_JO_JDBC}" \
-    && rg --replace "$(cat ${TMP_JO_JDBC})" --passthru --no-line-number --multiline --multiline-dotall '  bind .*?\n  }\n' "${DOCSPELL_CONF_JO}" >"${DOCSPELL_CONF_JO}.new" \
+    && rg --replace "$(cat ${TMP_JO_JDBC})" --passthru --no-line-number --multiline --multiline-dotall '  jdbc .*?\n  }\n' "${DOCSPELL_CONF_JO}" >"${DOCSPELL_CONF_JO}.new" \
     && rm "${DOCSPELL_CONF_JO}" && mv "${DOCSPELL_CONF_JO}.new" "${DOCSPELL_CONF_JO}"
 
 VOLUME /config
