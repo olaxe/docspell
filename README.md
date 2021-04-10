@@ -7,7 +7,7 @@ Builds are managed by the GitHub repository: https://github.com/olaxe/docspell/b
 
 You can find all ENV settings here: https://github.com/olaxe/docspell/blob/main/Dockerfile
 
-For the moment, work is still in progress so don't use for production. It should be finished by end of March 2021.
+For the moment, work is still in progress so don't use for production.
 
 If you want to test it, list of settings you need for a first startup:  
 - DOCSPELL_DB_TYPE="mariadb"
